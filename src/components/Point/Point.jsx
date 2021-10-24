@@ -28,21 +28,24 @@ const Point = () => {
   const { classes } = jss.createStyleSheet(styles).attach();
 
   const handleMove = (event) => {
-    console.log("key down");
-    console.log("event.key", event.key);
     setKeysPressed({ ...keysPressed, [event.key]: true });
-    console.log("les clefs pressées dans la methode", keysPressed);
-    // passer les keys en objet puis setPosition sur le mélange
   };
 
   const cleanControls = (event) => {
-    console.log("key up", event);
-    // On del juste la clef qui a été up !
     setKeysPressed({ ...keysPressed, [event.key]: false });
   };
 
   useEffect(() => {
-    if (Object.keys(keysPressed).length > 0) {
+    console.log("did trigger");
+    console.log(keysPressed);
+
+    if (
+      Object.keys(keysPressed).length > 0 &&
+      Object.keys(keysPressed).some(
+        (property) => keysPressed[property] === true
+      )
+    ) {
+      console.log("inside");
       if (keysPressed.ArrowUp && keysPressed.ArrowRight) {
         console.log("going up AND right");
         setPosition({
@@ -74,7 +77,7 @@ const Point = () => {
         return;
       }
       if (keysPressed.ArrowDown && keysPressed.ArrowLeft) {
-        console.log("going up AND right");
+        console.log("going down AND left");
         setPosition({
           ...position,
           top: position.top + STEP,
@@ -100,8 +103,6 @@ const Point = () => {
       }
     }
   }, [keysPressed, setKeysPressed]);
-
-  console.log("les clefs pressées selon le compo", keysPressed);
 
   return (
     <div onKeyDown={handleMove} onKeyUp={cleanControls} tabIndex="0">
