@@ -10,6 +10,7 @@ const Point = () => {
   });
 
   const [keysPressed, setKeysPressed] = useState({});
+  const [timerRepeatMove, setTimerRepeatMove] = useState(null);
 
   const STEP = 10;
 
@@ -33,6 +34,16 @@ const Point = () => {
 
   const cleanControls = (event) => {
     setKeysPressed({ ...keysPressed, [event.key]: false });
+
+    // Yo - checker ici si une touche est toujours appuyée, si oui, setInterval pour la réappuyer ?
+    // https://stackoverflow.com/questions/56763383/how-to-check-if-a-key-is-pressed-after-pressing-two-keys-and-releasing-the-secon
+    // if (Object.keys(keysPressed).length > 0) {
+    //   setTimerRepeatMove(
+    //     setInterval(() => {
+    //       setKeysPressed({ ...keysPressed });
+    //     }, 300)
+    //   );
+    // }
   };
 
   useEffect(() => {
@@ -46,6 +57,8 @@ const Point = () => {
       )
     ) {
       console.log("inside");
+
+      // Diagonals
       if (keysPressed.ArrowUp && keysPressed.ArrowRight) {
         console.log("going up AND right");
         setPosition({
@@ -54,7 +67,8 @@ const Point = () => {
           left: position.left + STEP,
         });
         return;
-      } else if (keysPressed.ArrowUp && keysPressed.ArrowLeft) {
+      }
+      if (keysPressed.ArrowUp && keysPressed.ArrowLeft) {
         console.log("going up AND left");
         setPosition({
           ...position,
@@ -62,11 +76,8 @@ const Point = () => {
           left: position.left - STEP,
         });
         return;
-      } else if (keysPressed.ArrowUp) {
-        console.log("going up");
-        setPosition({ ...position, top: position.top - STEP });
-        return;
       }
+
       if (keysPressed.ArrowDown && keysPressed.ArrowRight) {
         console.log("going up AND right");
         setPosition({
@@ -84,7 +95,16 @@ const Point = () => {
           left: position.left - STEP,
         });
         return;
-      } else if (keysPressed.ArrowDown) {
+      }
+
+      // Simple move
+      if (keysPressed.ArrowUp) {
+        console.log("going up");
+        setPosition({ ...position, top: position.top - STEP });
+        return;
+      }
+
+      if (keysPressed.ArrowDown) {
         console.log("going down");
         setPosition({ ...position, top: position.top + STEP });
         return;
@@ -102,6 +122,9 @@ const Point = () => {
         return;
       }
     }
+    // else {
+    //   setTimerRepeatMove(null);
+    // }
   }, [keysPressed, setKeysPressed]);
 
   return (
