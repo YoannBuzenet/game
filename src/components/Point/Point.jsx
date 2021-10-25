@@ -11,9 +11,8 @@ const Point = () => {
 
   const [keysPressed, setKeysPressed] = useState({});
 
-  const [multiTouch, setMultiTouch] = useState(false);
-
   const STEP = 10;
+  const SET_INTERVAL_MS = 50;
 
   const styles = {
     point: {
@@ -36,22 +35,14 @@ const Point = () => {
   const cleanControls = (event) => {
     setKeysPressed({ ...keysPressed, [event.key]: false });
     console.log("deactivating multitouch");
-    setMultiTouch(false);
     window.clearInterval(window.timer);
   };
 
   useEffect(() => {
     console.log("did trigger");
-    console.log("multi touch", multiTouch);
     console.log(keysPressed);
 
-    // Check anti multi touch
-    if (Object.keys(keysPressed).length <= 1) {
-      window.clearInterval(window.timer);
-      setMultiTouch(false);
-    }
-
-    // Si 2 touches étaient pressées, qu'il n'yen a plus qu'une maintenant et qu'elle fait partie de celles-ci, levier
+    let multiTouch;
 
     if (
       Object.keys(keysPressed).length > 1 &&
@@ -60,7 +51,7 @@ const Point = () => {
       )
     ) {
       // Multi touch
-      setMultiTouch(true);
+      multiTouch = true;
     }
 
     if (
@@ -116,13 +107,14 @@ const Point = () => {
         console.log("going up");
         setPosition({ ...position, top: position.top - STEP });
         if (multiTouch) {
+          window.clearInterval(window.timer);
           window.timer = window.setInterval(() => {
-            console.log("going up");
+            console.log("SET INTERVAL - going up");
             setPosition((position) => ({
               ...position,
               top: position.top - STEP,
             }));
-          }, 150);
+          }, SET_INTERVAL_MS);
         }
         return;
       }
@@ -131,13 +123,14 @@ const Point = () => {
         console.log("going down");
         setPosition({ ...position, top: position.top + STEP });
         if (multiTouch) {
+          window.clearInterval(window.timer);
           window.timer = window.setInterval(() => {
-            console.log("going down");
+            console.log("SET INTERVAL - going down");
             setPosition((position) => ({
               ...position,
               top: position.top + STEP,
             }));
-          }, 150);
+          }, SET_INTERVAL_MS);
         }
         return;
       }
@@ -146,13 +139,14 @@ const Point = () => {
         console.log("going right");
         setPosition({ ...position, left: position.left + STEP });
         if (multiTouch) {
+          window.clearInterval(window.timer);
           window.timer = window.setInterval(() => {
-            console.log("going right");
+            console.log("SET INTERVAL - going right");
             setPosition((position) => ({
               ...position,
               left: position.left + STEP,
             }));
-          }, 150);
+          }, SET_INTERVAL_MS);
         }
         return;
       }
@@ -161,19 +155,21 @@ const Point = () => {
         console.log("going left");
         setPosition({ ...position, left: position.left - STEP });
         if (multiTouch) {
+          window.clearInterval(window.timer);
           window.timer = window.setInterval(() => {
-            console.log("going left");
+            console.log("SET INTERVAL - going left");
             setPosition((position) => ({
               ...position,
               left: position.left - STEP,
             }));
-          }, 150);
+          }, SET_INTERVAL_MS);
         }
         return;
       }
     }
 
     return () => {
+      multiTouch = false;
       window.clearInterval(window.timer);
     };
   }, [keysPressed, setKeysPressed]);
