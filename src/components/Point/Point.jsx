@@ -1,7 +1,10 @@
 import jss from "jss";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { usePrevious } from "../../hooks/usePrevious";
-import { didUserRemovedAKey } from "../../services/keyboard/keyboardAPI";
+import {
+  didUserRemovedAKey,
+  isAKeyPressed,
+} from "../../services/keyboard/keyboardAPI";
 
 const Point = () => {
   const [position, setPosition] = useState({
@@ -42,18 +45,7 @@ const Point = () => {
   };
 
   useEffect(() => {
-    console.log("did trigger");
-    console.log(keysPressed);
-
-    if (
-      Object.keys(keysPressed).length > 0 &&
-      Object.keys(keysPressed).some(
-        (property) => keysPressed[property] === true
-      )
-    ) {
-      console.log("inside");
-      console.log("timer :", window.timer);
-
+    if (isAKeyPressed(keysPressed)) {
       // Diagonals
       if (keysPressed.ArrowUp && keysPressed.ArrowRight) {
         console.log("going up AND right");

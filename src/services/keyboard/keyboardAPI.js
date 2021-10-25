@@ -10,3 +10,10 @@ export function didUserRemovedAKey(currentKeyPressed, previousKeyPressed) {
     getNumberOfPushedKeys(previousKeyPressed)
   );
 }
+
+export function isAKeyPressed(keysPressed) {
+  return (
+    Object.keys(keysPressed).length > 0 &&
+    Object.keys(keysPressed).some((property) => keysPressed[property] === true)
+  );
+}
