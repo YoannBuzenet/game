@@ -10,7 +10,8 @@ const Point = () => {
   });
 
   const [keysPressed, setKeysPressed] = useState({});
-  const [timerRepeatMove, setTimerRepeatMove] = useState(null);
+
+  const [multiTouch, setMultiTouch] = useState(false);
 
   const STEP = 10;
 
@@ -34,21 +35,33 @@ const Point = () => {
 
   const cleanControls = (event) => {
     setKeysPressed({ ...keysPressed, [event.key]: false });
-
-    // Yo - checker ici si une touche est toujours appuyée, si oui, setInterval pour la réappuyer ?
-    // https://stackoverflow.com/questions/56763383/how-to-check-if-a-key-is-pressed-after-pressing-two-keys-and-releasing-the-secon
-    // if (Object.keys(keysPressed).length > 0) {
-    //   setTimerRepeatMove(
-    //     setInterval(() => {
-    //       setKeysPressed({ ...keysPressed });
-    //     }, 300)
-    //   );
-    // }
+    console.log("deactivating multitouch");
+    setMultiTouch(false);
+    window.clearInterval(window.timer);
   };
 
   useEffect(() => {
     console.log("did trigger");
+    console.log("multi touch", multiTouch);
     console.log(keysPressed);
+
+    // Check anti multi touch
+    if (Object.keys(keysPressed).length <= 1) {
+      window.clearInterval(window.timer);
+      setMultiTouch(false);
+    }
+
+    // Si 2 touches étaient pressées, qu'il n'yen a plus qu'une maintenant et qu'elle fait partie de celles-ci, levier
+
+    if (
+      Object.keys(keysPressed).length > 1 &&
+      Object.keys(keysPressed).some(
+        (property) => keysPressed[property] === true
+      )
+    ) {
+      // Multi touch
+      setMultiTouch(true);
+    }
 
     if (
       Object.keys(keysPressed).length > 0 &&
@@ -57,6 +70,7 @@ const Point = () => {
       )
     ) {
       console.log("inside");
+      console.log("timer :", window.timer);
 
       // Diagonals
       if (keysPressed.ArrowUp && keysPressed.ArrowRight) {
@@ -101,30 +115,67 @@ const Point = () => {
       if (keysPressed.ArrowUp) {
         console.log("going up");
         setPosition({ ...position, top: position.top - STEP });
+        if (multiTouch) {
+          window.timer = window.setInterval(() => {
+            console.log("going up");
+            setPosition((position) => ({
+              ...position,
+              top: position.top - STEP,
+            }));
+          }, 150);
+        }
         return;
       }
 
       if (keysPressed.ArrowDown) {
         console.log("going down");
         setPosition({ ...position, top: position.top + STEP });
+        if (multiTouch) {
+          window.timer = window.setInterval(() => {
+            console.log("going down");
+            setPosition((position) => ({
+              ...position,
+              top: position.top + STEP,
+            }));
+          }, 150);
+        }
         return;
       }
 
       if (keysPressed.ArrowRight) {
         console.log("going right");
         setPosition({ ...position, left: position.left + STEP });
+        if (multiTouch) {
+          window.timer = window.setInterval(() => {
+            console.log("going right");
+            setPosition((position) => ({
+              ...position,
+              left: position.left + STEP,
+            }));
+          }, 150);
+        }
         return;
       }
 
       if (keysPressed.ArrowLeft) {
         console.log("going left");
         setPosition({ ...position, left: position.left - STEP });
+        if (multiTouch) {
+          window.timer = window.setInterval(() => {
+            console.log("going left");
+            setPosition((position) => ({
+              ...position,
+              left: position.left - STEP,
+            }));
+          }, 150);
+        }
         return;
       }
     }
-    // else {
-    //   setTimerRepeatMove(null);
-    // }
+
+    return () => {
+      window.clearInterval(window.timer);
+    };
   }, [keysPressed, setKeysPressed]);
 
   return (
