@@ -1,5 +1,7 @@
 import jss from "jss";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { usePrevious } from "../../hooks/usePrevious";
+import { didUserRemovedAKey } from "../../services/keyboard/keyboardAPI";
 
 const Point = () => {
   const [position, setPosition] = useState({
@@ -10,6 +12,8 @@ const Point = () => {
   });
 
   const [keysPressed, setKeysPressed] = useState({});
+
+  const previousKeyPressed = usePrevious(keysPressed);
 
   const STEP = 10;
   const SET_INTERVAL_MS = 50;
@@ -34,25 +38,12 @@ const Point = () => {
 
   const cleanControls = (event) => {
     setKeysPressed({ ...keysPressed, [event.key]: false });
-    console.log("deactivating multitouch");
     window.clearInterval(window.timer);
   };
 
   useEffect(() => {
     console.log("did trigger");
     console.log(keysPressed);
-
-    let multiTouch;
-
-    if (
-      Object.keys(keysPressed).length > 1 &&
-      Object.keys(keysPressed).some(
-        (property) => keysPressed[property] === true
-      )
-    ) {
-      // Multi touch
-      multiTouch = true;
-    }
 
     if (
       Object.keys(keysPressed).length > 0 &&
@@ -106,7 +97,7 @@ const Point = () => {
       if (keysPressed.ArrowUp) {
         console.log("going up");
         setPosition({ ...position, top: position.top - STEP });
-        if (multiTouch) {
+        if (didUserRemovedAKey(keysPressed, previousKeyPressed)) {
           window.clearInterval(window.timer);
           window.timer = window.setInterval(() => {
             console.log("SET INTERVAL - going up");
@@ -122,7 +113,7 @@ const Point = () => {
       if (keysPressed.ArrowDown) {
         console.log("going down");
         setPosition({ ...position, top: position.top + STEP });
-        if (multiTouch) {
+        if (didUserRemovedAKey(keysPressed, previousKeyPressed)) {
           window.clearInterval(window.timer);
           window.timer = window.setInterval(() => {
             console.log("SET INTERVAL - going down");
@@ -138,7 +129,7 @@ const Point = () => {
       if (keysPressed.ArrowRight) {
         console.log("going right");
         setPosition({ ...position, left: position.left + STEP });
-        if (multiTouch) {
+        if (didUserRemovedAKey(keysPressed, previousKeyPressed)) {
           window.clearInterval(window.timer);
           window.timer = window.setInterval(() => {
             console.log("SET INTERVAL - going right");
@@ -154,7 +145,7 @@ const Point = () => {
       if (keysPressed.ArrowLeft) {
         console.log("going left");
         setPosition({ ...position, left: position.left - STEP });
-        if (multiTouch) {
+        if (didUserRemovedAKey(keysPressed, previousKeyPressed)) {
           window.clearInterval(window.timer);
           window.timer = window.setInterval(() => {
             console.log("SET INTERVAL - going left");
@@ -169,7 +160,6 @@ const Point = () => {
     }
 
     return () => {
-      multiTouch = false;
       window.clearInterval(window.timer);
     };
   }, [keysPressed, setKeysPressed]);
